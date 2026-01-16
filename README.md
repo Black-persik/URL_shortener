@@ -171,6 +171,8 @@ goose -dir ./migrations postgres "$DATABASE_URL" up
 | CLICK_FLUSH_INTERVAL |                                                     1s | Максимальное время ожидания перед flush батча |
 
 ---
+
+```mermaid
 flowchart TB
   Client[Client / Browser / API consumer]
 
@@ -205,7 +207,7 @@ flowchart TB
   Compose --- App
   Compose --- DB
   Migrations --> DB
-
+```
 
 ---
 
