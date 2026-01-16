@@ -171,6 +171,43 @@ goose -dir ./migrations postgres "$DATABASE_URL" up
 | CLICK_FLUSH_INTERVAL |                                                     1s | Максимальное время ожидания перед flush батча |
 
 ---
+flowchart TB
+  Client[Client / Browser / API consumer]
+
+  subgraph App[Go service: URL Shortener API]
+    Router[HTTP Router + Middleware]
+    Handler[Handlers]
+    Service[Service layer (business logic)]
+    Repo[Repository (DB access)]
+    ClickProducer[Click Producer\n(puts events into channel)]
+    ClickChan[(chan ClickEvent)]
+    Workers[Worker Pool\nN goroutines]
+    Batcher[Batcher\n(size/time flush)]
+  end
+
+  subgraph DB[PostgreSQL]
+    Links[(links table)]
+    Clicks[(clicks table)]
+  end
+
+  subgraph Infra[Infra]
+    Compose[docker-compose]
+    Migrations[goose migrations]
+  end
+
+  Client -->|POST /links| Router --> Handler --> Service --> Repo --> Links
+  Client -->|GET /{code}| Router --> Handler --> Service --> Repo --> Links
+  Handler -->|redirect 301/302| Client
+
+  Handler -->|async click event| ClickProducer --> ClickChan
+  ClickChan --> Workers --> Batcher --> Repo --> Clicks
+
+  Compose --- App
+  Compose --- DB
+  Migrations --> DB
+
+
+---
 
 ## Тестирование
 
