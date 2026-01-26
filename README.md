@@ -235,12 +235,4 @@ go test -race ./...
 
 ---
 
-## Контакты
 
-* Автор: Иван
-* GitHub: `<ссылка>`
-* Telegram: `<ссылка или @ник>`
-
-```
-::contentReference[oaicite:0]{index=0}
-```
